@@ -15,7 +15,7 @@ from .entities import (
     WelcomeMessage,
 )
 from .utils import GameConfig, Images, Sounds, Window
-from .agent import Agent
+from .agent import Agent, ACTION_FLAP
 
 
 class Flappy:
@@ -29,7 +29,7 @@ class Flappy:
         self.config = GameConfig(
             screen=screen,
             clock=pygame.time.Clock(),
-            fps=30,
+            fps=60,
             window=window,
             images=images,
             sounds=Sounds(),
@@ -92,19 +92,26 @@ class Flappy:
     async def play(self):
         self.score.reset()
         self.player.set_mode(PlayerMode.NORMAL)
+        prev_state = None
+        prev_action = None
 
         while True:
-            if self.player.collided(self.pipes, self.floor):
-                return
-
             for i, pipe in enumerate(self.pipes.upper):
                 if self.player.crossed(pipe):
                     self.score.add()
 
+            state, action = self.agent.tick()
+            if action == ACTION_FLAP:
+                self.player.flap()
+
             for event in pygame.event.get():
                 self.check_quit_event(event)
                 if self.is_tap_event(event):
+                    action = ACTION_FLAP
                     self.player.flap()
+
+            if action == ACTION_FLAP:
+                print("flap!!!!!")
 
             self.background.tick()
             self.floor.tick()
@@ -115,6 +122,15 @@ class Flappy:
             pygame.display.update()
             await asyncio.sleep(0)
             self.config.tick()
+
+            if self.player.collided(self.pipes, self.floor):
+                print("dead ", state, action)
+                self.agent.reward(state, action, False)
+                return
+            else:
+                print("alive ", state, action)
+                self.agent.reward(state, action, True)
+
 
     async def game_over(self):
         """crashes the player down and shows gameover image"""
