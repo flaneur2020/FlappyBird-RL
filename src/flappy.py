@@ -15,6 +15,7 @@ from .entities import (
     WelcomeMessage,
 )
 from .utils import GameConfig, Images, Sounds, Window
+from .agent import Agent
 
 
 class Flappy:
@@ -33,6 +34,7 @@ class Flappy:
             images=images,
             sounds=Sounds(),
         )
+        self.agent = Agent()
 
     async def start(self):
         while True:
@@ -43,6 +45,8 @@ class Flappy:
             self.game_over_message = GameOver(self.config)
             self.pipes = Pipes(self.config)
             self.score = Score(self.config)
+            self.agent.reset_state(self.player, self.pipes)
+            self.auto_play = True
             await self.splash()
             await self.play()
             await self.game_over()
@@ -53,6 +57,9 @@ class Flappy:
         self.player.set_mode(PlayerMode.SHM)
 
         while True:
+            if self.auto_play:
+                return 
+
             for event in pygame.event.get():
                 self.check_quit_event(event)
                 if self.is_tap_event(event):
@@ -117,9 +124,12 @@ class Flappy:
         self.floor.stop()
 
         while True:
+            if self.auto_play:
+                return
+
             for event in pygame.event.get():
                 self.check_quit_event(event)
-                if self.is_tap_event(event):
+                if self.is_tap_event(event): 
                     if self.player.y + self.player.h >= self.floor.y - 1:
                         return
 

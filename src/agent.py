@@ -6,11 +6,15 @@ ACTION_NOP = "nop"
 
 
 class Agent:
-    def __init__(self, player: Player, pipes: Pipes):
-        self.player = player
-        self.pipes = pipes
+    def __init__(self):
+        self.player = None
+        self.pipes = None
         # (player_relative_x, player_relative_y) -> action -> reward
         self.q = {}
+
+    def reset_state(self, player: Player, pipes: Pipes):
+        self.player = player
+        self.pipes = pipes
 
     # let's define a key for the Q-table. the state is the playe's
     # relative positions to the next lower pipe.
