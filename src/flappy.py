@@ -92,8 +92,6 @@ class Flappy:
     async def play(self):
         self.score.reset()
         self.player.set_mode(PlayerMode.NORMAL)
-        prev_state = None
-        prev_action = None
 
         while True:
             for i, pipe in enumerate(self.pipes.upper):
@@ -103,6 +101,8 @@ class Flappy:
             state, action = self.agent.tick()
             if action == ACTION_FLAP:
                 self.player.flap()
+
+            print("state ", state, "\t", self.agent.q.get(state, {}), "\t", action)
 
             for event in pygame.event.get():
                 self.check_quit_event(event)
@@ -124,11 +124,9 @@ class Flappy:
             self.config.tick()
 
             if self.player.collided(self.pipes, self.floor):
-                print("dead ", state, action)
                 self.agent.reward(state, action, False)
                 return
             else:
-                print("alive ", state, action)
                 self.agent.reward(state, action, True)
 
 
