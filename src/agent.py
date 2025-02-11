@@ -1,8 +1,12 @@
 from .entities import Player, Pipes
+import os
+import pickle
 import random
 
 ACTION_FLAP = "flap"
 ACTION_NOP = "nop"
+
+Q_TABLE_FILE = "q.pkl"
 
 
 class Agent:
@@ -11,6 +15,11 @@ class Agent:
         self.pipes = None
         # (player_relative_x, player_relative_y) -> action -> reward
         self.q = {}
+        if os.path.exists(Q_TABLE_FILE):
+            with open(Q_TABLE_FILE, "rb") as f:
+                self.q = pickle.load(f)
+        self.iterations = 0
+        self.max_score = 0
 
     def reset_state(self, player: Player, pipes: Pipes):
         self.player = player
@@ -37,8 +46,21 @@ class Agent:
             return ACTION_FLAP
         return ACTION_NOP
 
-    def tick(self):
+    def tick(self, score: int):
+        self.iterations += 1
+        if self.iterations % 1000 == 0:
+            # save the Q-table
+            self.checkpoint()
+        if score > self.max_score:
+            self.max_score = score
+            if score % 100 == 0:
+                self.checkpoint(f"q_{score}.pkl")
         return self.current_state(), self.pick_action()
+
+    def checkpoint(self, filename: str = Q_TABLE_FILE):
+        with open(filename, "wb") as f:
+            print(f"Saving Q-table to {filename}")
+            pickle.dump(self.q, f)
 
     def reward(self, state, action, alive: bool):
         if state is None or action is None:

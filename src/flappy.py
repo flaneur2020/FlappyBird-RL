@@ -29,7 +29,7 @@ class Flappy:
         self.config = GameConfig(
             screen=screen,
             clock=pygame.time.Clock(),
-            fps=60,
+            fps=2000,
             window=window,
             images=images,
             sounds=Sounds(),
@@ -98,11 +98,9 @@ class Flappy:
                 if self.player.crossed(pipe):
                     self.score.add()
 
-            state, action = self.agent.tick()
+            state, action = self.agent.tick(self.score.score)
             if action == ACTION_FLAP:
                 self.player.flap()
-
-            print("state ", state, "\t", self.agent.q.get(state, {}), "\t", action)
 
             for event in pygame.event.get():
                 if not self.auto_play:
@@ -112,7 +110,7 @@ class Flappy:
                     self.player.flap()
 
             if action == ACTION_FLAP:
-                print("flap!!!!!")
+                print("flap! ", state, "\t", self.agent.q.get(state, {}), "\t", action)
 
             self.background.tick()
             self.floor.tick()
