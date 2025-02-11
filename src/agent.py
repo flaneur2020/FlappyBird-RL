@@ -6,7 +6,7 @@ import random
 ACTION_FLAP = "flap"
 ACTION_NOP = "nop"
 
-Q_TABLE_FILE = "q.pkl"
+Q_TABLE_FILE = "checkpoints/q.pkl"
 
 
 class Agent:
@@ -48,13 +48,13 @@ class Agent:
 
     def tick(self, score: int):
         self.iterations += 1
-        if self.iterations % 1000 == 0:
+        if self.iterations % 2000 == 0:
             # save the Q-table
             self.checkpoint()
         if score > self.max_score:
             self.max_score = score
-            if score % 100 == 0:
-                self.checkpoint(f"q_{score}.pkl")
+            if score % 1000 == 0:
+                self.checkpoint(f"checkpoints/q_{score}.pkl")
         return self.current_state(), self.pick_action()
 
     def checkpoint(self, filename: str = Q_TABLE_FILE):
