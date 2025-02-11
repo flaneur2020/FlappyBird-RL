@@ -105,7 +105,8 @@ class Flappy:
             print("state ", state, "\t", self.agent.q.get(state, {}), "\t", action)
 
             for event in pygame.event.get():
-                self.check_quit_event(event)
+                if not self.auto_play:
+                    self.check_quit_event(event)
                 if self.is_tap_event(event):
                     action = ACTION_FLAP
                     self.player.flap()
