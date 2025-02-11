@@ -58,7 +58,7 @@ class Flappy:
 
         while True:
             if self.auto_play:
-                return 
+                return
 
             for event in pygame.event.get():
                 self.check_quit_event(event)
