@@ -29,7 +29,7 @@ class Flappy:
         self.config = GameConfig(
             screen=screen,
             clock=pygame.time.Clock(),
-            fps=2000,
+            fps=60,
             window=window,
             images=images,
             sounds=Sounds(),
